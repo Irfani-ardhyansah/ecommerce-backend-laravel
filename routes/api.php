@@ -2,8 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\CategoryController;
-use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\Admin\CategoryController;
+use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\UserController;
 
 /*
@@ -23,7 +23,7 @@ use App\Http\Controllers\Api\UserController;
 
 Route::post('/login', [UserController::class, 'auth']);
 
-Route::middleware('jwt.verify')->group(function() {
+Route::middleware('jwt.verify')->group(function () {
 
     Route::post('/logout', [UserController::class, 'logout']);
 
@@ -43,5 +43,4 @@ Route::prefix('product')->group(function () {
 
     Route::put('/{id}/discount', [ProductController::class, 'setDiscount']);
     Route::post('/{id}/status', [ProductController::class, 'setStatus']);
-
 });

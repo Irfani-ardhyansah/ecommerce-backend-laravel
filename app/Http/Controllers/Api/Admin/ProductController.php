@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class ProductController extends Controller
     {
         try {
             $products = Product::with('discount')->get();
-            
+
             return response()->json([
                 'status' => 200,
                 'data'   => $products
@@ -131,7 +131,7 @@ class ProductController extends Controller
                         'end_at'        => $request->end_at
                     ]);
                 }
-                
+
                 return response()->json([
                     'status' => 200,
                     'data'   => $response
@@ -150,7 +150,7 @@ class ProductController extends Controller
         }
     }
 
-    public function setStatus($id) 
+    public function setStatus($id)
     {
         try {
             $product = Product::with('discount')->find($id);
@@ -163,7 +163,7 @@ class ProductController extends Controller
             return response()->json([
                 'status' => 200,
                 'data'   => $product
-            ]); 
+            ]);
         }catch (\Exception $e) {
             return response()->json([
                 'status' => 500,

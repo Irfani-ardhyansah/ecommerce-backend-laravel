@@ -1,24 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CartRequest;
 use Illuminate\Http\Request;
-use App\Models\Category;
-use App\Http\Requests\CategoryRequest;
+use App\Models\Cart;
 
-class CategoryController extends Controller
+class CartController extends Controller
 {
     public function index()
     {
         try {
-            $categories = Category::get();
+            $response = Cart::with(['product', 'user'])->paginate(10);
 
             return response()->json([
                 'status' => 200,
-                'data'   => $categories
+                'data'   => $response
             ]);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,
                 'data'   => $e->getMessage()
@@ -26,12 +26,15 @@ class CategoryController extends Controller
         }
     }
 
-    public function store(CategoryRequest $request)
+    public function store(CartRequest $request)
     {
         try {
-            $response = Category::create([
-                'name'          => $request->name,
-                'description'   => $request->description
+            $response = Cart::create([
+                'user_id'       => $request->user_id,
+                'product_id'    => $request->product_id,
+                'qty'           => $request->qty,
+                'price'         => $request->price,
+                'total_price'   => ($request->qty * $request->price)
             ]);
 
             return response()->json([
@@ -46,18 +49,14 @@ class CategoryController extends Controller
         }
     }
 
-    public function update(CategoryRequest $request, $id)
+    public function update(Request $request, $id)
     {
         try {
-            $category = Category::find($id);
-            $category->update([
-                'name'          => $request->name,
-                'description'   => $request->description
-            ]);
-
-            return response()->json([
-                'status' => 200,
-                'data'   => $category
+            $cart = Cart::with(['product', 'user'])->find($id);
+            $cart->update([
+                'qty'           => $request->qty,
+                'price'         => $request->price,
+                'total_price'   => ($request->qty * $request->price)
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -70,12 +69,12 @@ class CategoryController extends Controller
     public function delete($id)
     {
         try {
-            $category = Category::find($id);
-            $category->delete();
+            $response = Cart::find($id);
+            $response->delete();
 
             return response()->json([
                 'status' => 200,
-                'data'   => null
+                'data'   => $response
             ]);
         } catch (\Exception $e) {
             return response()->json([
