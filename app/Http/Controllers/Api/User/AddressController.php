@@ -10,6 +10,13 @@ class AddressController extends Controller
 {
     public function store()
     {
+        try {
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'data'   => $e->getMessage()
+            ]);
+        }
     }
 
     public function update()
