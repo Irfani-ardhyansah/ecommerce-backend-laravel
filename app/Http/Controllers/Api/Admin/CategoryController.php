@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Http\Requests\CategoryRequest;
+use Image;
 
 class CategoryController extends Controller
 {
@@ -29,9 +30,15 @@ class CategoryController extends Controller
     public function store(CategoryRequest $request)
     {
         try {
+            if($request->has('image')) {
+                $file   = $request->file('image');
+                $image  = Image::upload($file, 'categories', $request->name);
+            } 
+
             $response = Category::create([
                 'name'          => $request->name,
-                'description'   => $request->description
+                'description'   => $request->description,
+                'image'         => isset($image) ? $image : null
             ]);
 
             return response()->json([
@@ -50,9 +57,16 @@ class CategoryController extends Controller
     {
         try {
             $category = Category::find($id);
+
+            if($request->has('image')) {
+                $file   = $request->file('image');
+                $image  = Image::upload($file, 'categories', $request->name, $category->image);
+            } 
+
             $category->update([
                 'name'          => $request->name,
-                'description'   => $request->description
+                'description'   => $request->description,
+                'image'         => isset($image) ? $image : $category->image
             ]);
 
             return response()->json([
@@ -71,6 +85,15 @@ class CategoryController extends Controller
     {
         try {
             $category = Category::find($id);
+            if (file_exists($category->image)) {
+                $resp = Image::delete($category->image);
+                if(!$resp) {
+                    return response()->json([
+                        'status' => 500,
+                        'data'   => $e->getMessage()
+                    ]);
+                }
+            }
             $category->delete();
 
             return response()->json([

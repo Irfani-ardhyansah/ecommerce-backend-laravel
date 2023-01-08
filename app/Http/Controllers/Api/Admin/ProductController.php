@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Models\ProductDiscount;
+use Image;
 
 class ProductController extends Controller
 {
@@ -30,6 +31,10 @@ class ProductController extends Controller
     public function store(ProductRequest $request )
     {
         try {
+            if($request->has('image')) {
+                $file   = $request->file('image');
+                $image  = Image::upload($file, 'products', $request->name);
+            } 
 
             $response = Product::create([
                 'category_id'   => $request->category_id,
@@ -37,7 +42,8 @@ class ProductController extends Controller
                 'description'   => $request->description,
                 'price'         => $request->price,
                 'stock'         => $request->stock,
-                'status'        => 1
+                'status'        => 1,
+                'image'         => isset($image) ? $image : null
             ]);
 
             return response()->json([
@@ -56,13 +62,20 @@ class ProductController extends Controller
     {
         try {
             $product = Product::with('discount')->find($id);
+
+            if($request->has('image')) {
+                $file   = $request->file('image');
+                $image  = Image::upload($file, 'products', $request->name, $product->image);
+            } 
+
             $product->update([
                 'category_id'   => $request->category_id,
                 'name'          => $request->name,
                 'description'   => $request->description,
                 'price'         => $request->price,
                 'stock'         => $request->stock,
-                'status'        => 1
+                'status'        => 1,
+                'image'         => isset($image) ? $image : $product->image
             ]);
 
             return response()->json([
@@ -82,6 +95,17 @@ class ProductController extends Controller
     {
         try {
             $product = Product::find($id);
+
+            if (file_exists($product->image)) {
+                $resp = Image::delete($product->image);
+                if(!$resp) {
+                    return response()->json([
+                        'status' => 500,
+                        'data'   => $e->getMessage()
+                    ]);
+                }
+            }
+
             $product->delete();
 
             return response()->json([

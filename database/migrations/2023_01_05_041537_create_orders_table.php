@@ -21,7 +21,7 @@ class CreateOrdersTable extends Migration
             $table->string('status')->nullable();
             $table->string('payment_method')->nullable();
             $table->double('payment_total')->nullable();
-            $table->timestamps('deleted_at');
+            $table->timestamp('deleted_at');
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
