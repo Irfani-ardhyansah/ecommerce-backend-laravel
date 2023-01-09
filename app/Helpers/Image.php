@@ -17,14 +17,15 @@ class Image
   }
 
   // function to update image
-  public function update($file, $path, $name, $old_image)
+  public function update($file, $path, $name, $old_image, $id)
   {
     // check if old_image exists
     if (file_exists(public_path() . $old_image)) {
       unlink(public_path() . $old_image);
     }
+    $name = $name . ' ' . $id;
     // add variable new name
-    $new_name        = str_replace(' ', '-', $name) . "." . $file->getClientOriginalName();
+    $new_name        = str_replace(' ', '-', $name) . "." . $file->getClientOriginalExtension();
     // move file to selected path
     $file->move($path, $new_name);
     $return_name     = '/' . $path . '/' . $new_name;

@@ -60,7 +60,7 @@ class CategoryController extends Controller
 
             if($request->has('image')) {
                 $file   = $request->file('image');
-                $image  = Image::upload($file, 'categories', $request->name, $category->image);
+                $image  = Image::update($file, 'categories', $request->name, $category->image, $id);
             } 
 
             $category->update([
@@ -85,7 +85,7 @@ class CategoryController extends Controller
     {
         try {
             $category = Category::find($id);
-            if (file_exists($category->image)) {
+            if (file_exists(public_path().$category->image)) {
                 $resp = Image::delete($category->image);
                 if(!$resp) {
                     return response()->json([
