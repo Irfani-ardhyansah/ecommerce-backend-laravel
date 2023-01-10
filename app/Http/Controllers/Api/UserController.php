@@ -32,11 +32,13 @@ class UserController extends Controller
             if (!$token = auth()->attempt($validator->validated())) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
+
+        $user = User::with('detail')->find(Auth::user()->id);
     
             return response()->json([
                 'status'    => 200,
                 'data'      => [
-                    'user'              => Auth::user(),
+                    'user'              => $user,
                     'token'             => $token,
                     'token_created_at'  => Carbon::now()
                 ]
