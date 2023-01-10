@@ -22,6 +22,7 @@ use App\Http\Controllers\Api\UserController;
 // });
 
 Route::post('/login', [UserController::class, 'auth']);
+Route::post('/register', [UserController::class, 'register']);
 
 Route::middleware('jwt.verify')->group(function () {
 

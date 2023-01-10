@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Models\UserDetail;
 use Auth;
 use Validator;
 use Carbon\Carbon;  
@@ -56,6 +58,34 @@ class UserController extends Controller
                 'data'      => null
             ], 201);
         } catch(\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'data'   => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function register(UserRequest $request)
+    {
+        try {
+            $user = User::create([
+                'email'     => $request->email,
+                'role'      => 'customer',
+                'password'  => bcrypt($request->password)
+            ]);
+
+            UserDetail::create([
+                'user_id'   => $user->id,
+                'name'      => $request->name,
+                'address'   => $request->address,
+                'phone'     => $request->phone,
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'data'   => $user
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,
                 'data'   => $e->getMessage()
