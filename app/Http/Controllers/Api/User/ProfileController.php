@@ -7,14 +7,47 @@ use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserDetail;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProfileController extends Controller
 {
 
-    public function index($id)
+    public function index()
     {
+        try{
+            if (! JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
         try {
-            $response = User::with('detail')->find($id);
+            $user_id    = auth()->user()->id;
+            $response   = User::with('detail')->find($user_id);
 
             return response()->json([
                 'status' => 200,
@@ -28,14 +61,43 @@ class ProfileController extends Controller
         }
     }
 
-    public function edit(UserRequest $request, $id)
+    public function update(UserRequest $request, $id)
     {
-        try {
-            $user = User::find($id)->update([
-                'email'     => $request->email,
-            ]);
+        try{
+            if (! JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
 
-            UserDetail::where('user_id', $id)->first()->update([
+        try {
+            $user_id    = auth()->user()->id;
+            $user       = User::find($user_id)->update([
+                            'email'     => $request->email,
+                        ]);
+
+            UserDetail::where('user_id', $user_id)->first()->update([
                 'name'      => $request->name,
                 'address'   => $request->address,
                 'phone'     => $request->phone,

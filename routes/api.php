@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\User\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,20 +29,26 @@ Route::middleware('jwt.verify')->group(function () {
 
     Route::post('/logout', [UserController::class, 'logout']);
 
+    Route::prefix('profile')->group(function() {
+        Route::get('/', [ProfileController::class, 'index']);
+        Route::get('/', [ProfileController::class, 'index']);
+    });
+
     Route::prefix('category')->group(function () {
         Route::get('/', [CategoryController::class, 'index']);
         Route::post('/', [CategoryController::class, 'store']);
         Route::put('/{id}', [CategoryController::class, 'update']);
         Route::delete('/{id}', [CategoryController::class, 'delete']);
     });
+
+    Route::prefix('product')->group(function () {
+        Route::get('/', [ProductController::class, 'index']);
+        Route::post('/', [ProductController::class, 'store']);
+        Route::put('/{id}', [ProductController::class, 'update']);
+        Route::delete('/{id}', [ProductController::class, 'delete']);
+    
+        Route::put('/{id}/discount', [ProductController::class, 'setDiscount']);
+        Route::post('/{id}/status', [ProductController::class, 'setStatus']);
+    });
 });
 
-Route::prefix('product')->group(function () {
-    Route::get('/', [ProductController::class, 'index']);
-    Route::post('/', [ProductController::class, 'store']);
-    Route::put('/{id}', [ProductController::class, 'update']);
-    Route::delete('/{id}', [ProductController::class, 'delete']);
-
-    Route::put('/{id}/discount', [ProductController::class, 'setDiscount']);
-    Route::post('/{id}/status', [ProductController::class, 'setStatus']);
-});
