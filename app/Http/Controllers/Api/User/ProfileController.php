@@ -11,6 +11,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Image;
 
 class ProfileController extends Controller
 {
@@ -61,7 +62,7 @@ class ProfileController extends Controller
         }
     }
 
-    public function update(UserRequest $request, $id)
+    public function update(Request $request)
     {
         try{
             if (! JWTAuth::parseToken()->authenticate()) {
@@ -93,19 +94,47 @@ class ProfileController extends Controller
 
         try {
             $user_id    = auth()->user()->id;
-            $user       = User::find($user_id)->update([
-                            'email'     => $request->email,
-                        ]);
+            $user       = User::find($user_id);
+            $detail     = UserDetail::where('user_id', $user_id);
 
-            UserDetail::where('user_id', $user_id)->first()->update([
-                'name'      => $request->name,
-                'address'   => $request->address,
-                'phone'     => $request->phone,
-            ]);
+            if($request->email) {
+                $user->update(['email' => $request->email]);
+            }
+
+            if($request->birthday) {
+                $detail->update(['birthday' => $request->birthday]);
+            }
+
+            if($request->gender) {
+                $detail->update(['gender' => $request->gender]);
+            }
+
+            if($request->name) {
+                $detail->update(['name' => $request->name]);
+            }
+
+            if($request->phone) {
+                $detail->update(['phone' => $request->phone]);
+            }
+
+            if($request->address) {
+                $detail->update(['address' => $request->address]);
+            }
+            
+            if($request->password) {
+                $user->update(['password' => $request->password]);
+            }
+
+            if($request->has('image')) {
+                $file   = $request->file('image');
+                $image  = Image::update($file, 'profile', $user->email, $detail->first()->image, $user_id);
+            }
+
+            $response = User::with('detail')->find($user_id);
 
             return response()->json([
                 'status' => 200,
-                'data'   => $user
+                'data'   => $response
             ]);
         } catch (\Exception $e) {
             return response()->json([
