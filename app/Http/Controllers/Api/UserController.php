@@ -76,11 +76,19 @@ class UserController extends Controller
                 'password'  => bcrypt($request->password)
             ]);
 
+            if($request->has('image')) {
+                $file = $request->file('image');
+                $image  = Image::upload($file, 'profile', $request->email);
+            }
+
             UserDetail::create([
                 'user_id'   => $user->id,
                 'name'      => $request->name,
                 'address'   => $request->address,
                 'phone'     => $request->phone,
+                'gender'    => $request->gender,
+                'birthday'  => $request->birthday,
+                'image'     => isset($image) ? $image : null
             ]);
 
             return response()->json([

@@ -122,12 +122,13 @@ class ProfileController extends Controller
             }
             
             if($request->password) {
-                $user->update(['password' => $request->password]);
+                $user->update(['password' => bcrypt($request->password)]);
             }
 
             if($request->has('image')) {
                 $file   = $request->file('image');
                 $image  = Image::update($file, 'profile', $user->email, $detail->first()->image, $user_id);
+                $detail->update(['image' => $image]);
             }
 
             $response = User::with('detail')->find($user_id);
