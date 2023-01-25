@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CartRequest;
 use Illuminate\Http\Request;
 use App\Models\Cart;
+use App\Models\Product;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -93,13 +94,26 @@ class CartController extends Controller
 
         try {
             $user_id    = auth()->user()->id;
-            $response   = Cart::create([
-                'user_id'       => $user_id,
-                'product_id'    => $request->product_id,
-                'qty'           => $request->qty,
-                'price'         => $request->price,
-                'total_price'   => ($request->qty * $request->price)
-            ]);
+            $product_id = $request->product_id;
+            
+            // check cart 
+            $checkCart  = Cart::where([
+                                    'user_id'       => $user_id,
+                                    'product_id'    => $product_id
+                                ])
+                                ->first();
+
+            $product    = Product::with('discount')->findOrFail($request->product_id);
+            $price      = $product->price;
+            if($product->discount) {
+                $price = $product->discount->price;
+            }
+
+            if(!$checkCart) {
+                $response = $this->handleStore($user_id, $product, $price, $request);
+            } else {
+                $response = $this->handleUpdate($product, $price, $request, $checkCart);
+            }
 
             return response()->json([
                 'status' => 200,
@@ -113,21 +127,30 @@ class CartController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    private function handleStore($user_id, $product, $price, $request) 
     {
-        try {
-            $cart = Cart::with(['product', 'user'])->find($id);
-            $cart->update([
-                'qty'           => $request->qty,
-                'price'         => $request->price,
-                'total_price'   => ($request->qty * $request->price)
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 500,
-                'data'   => $e->getMessage()
-            ]);
-        }
+        $response   = Cart::create([
+            'user_id'       => $user_id,
+            'product_id'    => $request->product_id,
+            'qty'           => $request->qty,
+            'price'         => $price,
+            'total_price'   => ($request->qty * $price),
+            'is_discount'   => isset($product->discount) ? 1 : null
+        ]);
+
+        return $response;
+    }
+
+    private function handleUpdate($product, $price, $request, $cart)
+    {
+        $cart->update([
+            'qty'           => $request->qty,
+            'price'         => $price,
+            'total_price'   => ($request->qty * $price),
+            'is_discount'   => isset($product->discount) ? 1 : null
+        ]);
+
+        return $cart;
     }
 
     public function delete($id)

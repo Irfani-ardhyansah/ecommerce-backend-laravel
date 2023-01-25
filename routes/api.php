@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\CategoryController;
 use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\User\ProfileController;
+use App\Http\Controllers\Api\User\CartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +50,12 @@ Route::middleware('jwt.verify')->group(function () {
     
         Route::put('/{id}/discount', [ProductController::class, 'setDiscount']);
         Route::post('/{id}/status', [ProductController::class, 'setStatus']);
+    });
+
+    Route::prefix('cart')->group(function () {
+        Route::get('/', [CartController::class, 'index']);
+        Route::post('/', [CartController::class, 'store']);
+        Route::delete('/{id}', [CartController::class, 'delete']);
     });
 });
 

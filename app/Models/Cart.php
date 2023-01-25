@@ -13,7 +13,7 @@ class Cart extends Model
 {
     use HasFactory, SoftDeletes;
     protected $guarded  = [],
-        $dates    = ['deleted_at'];
+    $dates    = ['deleted_at'];
 
     public function product()
     {

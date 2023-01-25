@@ -20,8 +20,10 @@ class Image
   public function update($file, $path, $name, $old_image, $id)
   {
     // check if old_image exists
-    if (file_exists(public_path() . $old_image)) {
-      unlink(public_path() . $old_image);
+    if($old_image) {
+      if (file_exists(public_path() . $old_image)) {
+        unlink(public_path() . $old_image);
+      }  
     }
     $name = $name . ' ' . $id;
     // add variable new name

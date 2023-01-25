@@ -13,7 +13,7 @@ class CategoryController extends Controller
     public function index()
     {
         try {
-            $categories = Category::get();
+            $categories = Category::limit(4)->get();
 
             return response()->json([
                 'status' => 200,
