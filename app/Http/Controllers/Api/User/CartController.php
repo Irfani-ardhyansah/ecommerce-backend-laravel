@@ -157,12 +157,20 @@ class CartController extends Controller
     {
         try {
             $response = Cart::find($id);
-            $response->delete();
+            if($response) {
+                $response->delete();
 
-            return response()->json([
-                'status' => 200,
-                'data'   => $response
-            ]);
+                return response()->json([
+                    'status' => 200,
+                    'data'   => $response
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 400,
+                    'data'   => $response
+                ]);
+            }
+
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,
