@@ -156,6 +156,34 @@ class CartController extends Controller
     public function delete($id)
     {
         try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
+        try {
             $response = Cart::find($id);
             if($response) {
                 $response->delete();
@@ -171,6 +199,53 @@ class CartController extends Controller
                 ]);
             }
 
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'data'   => $e->getMessage()
+            ]);
+        }
+    }
+
+    public function getQty() 
+    {
+        try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
+        try {
+            $user_id    = auth()->user()->id;
+            $response   = Cart::where('user_id', $user_id)
+                            ->count();
+                            
+            return response()->json([
+                'status' => 200,
+                'data'   => $response
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,

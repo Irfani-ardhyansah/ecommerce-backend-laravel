@@ -56,6 +56,7 @@ Route::middleware('jwt.verify')->group(function () {
         Route::get('/', [CartController::class, 'index']);
         Route::post('/', [CartController::class, 'store']);
         Route::delete('/{id}', [CartController::class, 'delete']);
+        Route::get('/qty', [CartController::class, 'getQty']);
     });
 });
 
