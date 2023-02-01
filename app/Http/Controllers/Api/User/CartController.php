@@ -138,6 +138,8 @@ class CartController extends Controller
             'is_discount'   => isset($product->discount) ? 1 : null
         ]);
 
+        $response->status   = 'created';
+
         return $response;
     }
 
@@ -149,6 +151,8 @@ class CartController extends Controller
             'total_price'   => ($request->qty * $price),
             'is_discount'   => isset($product->discount) ? 1 : null
         ]);
+
+        $cart->status   = 'updated';
 
         return $cart;
     }
