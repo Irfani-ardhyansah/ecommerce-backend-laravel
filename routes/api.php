@@ -47,6 +47,8 @@ Route::middleware('jwt.verify')->group(function () {
         Route::post('/', [ProductController::class, 'store']);
         Route::put('/{id}', [ProductController::class, 'update']);
         Route::delete('/{id}', [ProductController::class, 'delete']);
+
+        Route::get('/all', [ProductController::class, 'groupByCategory']);
     
         Route::put('/{id}/discount', [ProductController::class, 'setDiscount']);
         Route::post('/{id}/status', [ProductController::class, 'setStatus']);

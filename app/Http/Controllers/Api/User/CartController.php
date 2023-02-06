@@ -157,6 +157,16 @@ class CartController extends Controller
         return $cart;
     }
 
+    private function incrementStock($product_id, $qty) 
+    {
+        
+    }
+
+    private function decrementStock($product_id, $qty)
+    {
+
+    }
+
     public function delete($id)
     {
         try {

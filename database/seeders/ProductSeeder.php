@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Product;
+use App\Models\Category;
 
 class ProductSeeder extends Seeder
 {
@@ -13,16 +15,21 @@ class ProductSeeder extends Seeder
      */
     public function run()
     {
-        for($i = 1; $i <= 20; $i++){
-                // insert data ke table pegawai menggunakan Faker
-            DB::table('pegawai')->insert([
-                'category_id'   => 1,
-                'name'          => 'Product Seeder ' . $i,
-                'description'   => 'Product DescriptionSeeder ' . $i,
-                'price'         => $i . 000,
-                'stock'         => 10,
-            ]);
-
+        $categories = Category::get();
+        foreach($categories as $category) {
+            $seed = [];
+            for($i = 1; $i <= 40; $i++){
+                $seed[]= [
+                    // insert data ke table pegawai menggunakan Faker
+                    'category_id'   => $category->id,
+                    'name'          => 'Product Seeder ' . $i . ' ' . $category->name,
+                    'description'   => 'Product DescriptionSeeder ' . $i,
+                    'price'         => $i . '000',
+                    'stock'         => 10,
+                ];
+            }
+            
+            Product::insert($seed);
         }
     }
 }

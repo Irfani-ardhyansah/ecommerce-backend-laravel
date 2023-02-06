@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\ProductRequest;
 use App\Models\Product;
 use App\Models\ProductDiscount;
+use App\Models\Category;
 use Image;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
@@ -52,7 +53,7 @@ class ProductController extends Controller
                                             $query->select('id', 'product_id', 'qty')
                                                 ->where('user_id', $user_id);
                                         }
-                                    ])->get();
+                                    ])->paginate(10);
 
             return response()->json([
                 'status' => 200,
@@ -68,6 +69,34 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request )
     {
+        try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
         try {
             if($request->has('image')) {
                 $file   = $request->file('image');
@@ -98,6 +127,34 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, $id)
     {
+        try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
         try {
             $product = Product::with('discount')->find($id);
 
@@ -132,6 +189,34 @@ class ProductController extends Controller
     public function delete($id)
     {
         try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
+        try {
             $product = Product::find($id);
 
             if (file_exists($product->image)) {
@@ -156,6 +241,68 @@ class ProductController extends Controller
                 'data'   => $e->getMessage()
             ]);
         }
+    }
+
+    public function groupByCategory() 
+    {
+        try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
+        try {   
+            $categories = Category::get();
+            $user_id    = auth()->user()->id;
+            $response   = array();
+            
+            foreach($categories as $category) {
+                $products = Product::with(['discount', 
+                                            'carts' => function($query) use ($user_id) {
+                                                $query->select('id', 'product_id', 'qty')
+                                                    ->where('user_id', $user_id);
+                                            }
+                                        ])
+                                        ->where('category_id', $category->id)
+                                        ->limit(10)
+                                        ->get();
+
+                $response[$category->name] = $products;
+            }
+
+            return response()->json([
+                'status'    => 200,
+                'data'      => $response,
+            ]);
+        } catch(\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'data'   => $e->getMessage()
+            ]);
+        }
+
     }
 
     public function setDiscount(Request $request, $id)
