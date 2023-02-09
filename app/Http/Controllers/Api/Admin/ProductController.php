@@ -16,7 +16,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             if (!JWTAuth::parseToken()->authenticate()) {
@@ -53,7 +53,13 @@ class ProductController extends Controller
                                             $query->select('id', 'product_id', 'qty')
                                                 ->where('user_id', $user_id);
                                         }
-                                    ])->paginate(10);
+                                    ]);
+            
+            if($request->category_id) {
+                $products = $products->where('category_id', $request->category_id);
+            }
+
+            $products = $products->paginate(10);
 
             return response()->json([
                 'status' => 200,
