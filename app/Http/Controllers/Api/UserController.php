@@ -94,12 +94,12 @@ class UserController extends Controller
             return response()->json([
                 'status' => 200,
                 'data'   => $user
-            ]);
+            ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 500,
                 'data'   => $e->getMessage()
-            ]);
+            ], 500);
         }
     }
 }

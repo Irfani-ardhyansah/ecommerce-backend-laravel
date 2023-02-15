@@ -30,7 +30,9 @@ class UserRequest extends FormRequest
             'email'         => ['required', 'unique:users'],
             'password'      => 'required',
             'address'       => 'required',
-            'phone'         => 'required'
+            'phone'         => 'required',
+            'gender'        => 'required',
+            'birthday'      => 'required'
         ];
     }
 
@@ -40,6 +42,6 @@ class UserRequest extends FormRequest
             'success'   => false,
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
-        ]));
+        ], 422));
     }
 }
