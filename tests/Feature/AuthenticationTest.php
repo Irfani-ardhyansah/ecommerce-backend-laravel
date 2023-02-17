@@ -6,10 +6,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Faker\Generator as Faker;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 class AuthenticationTest extends TestCase
 {
-    use WithFaker;
+    use WithFaker, DatabaseTransactions;
     /**
      * A basic feature test example.
      *

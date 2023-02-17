@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\ProductController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\User\ProfileController;
 use App\Http\Controllers\Api\User\CartController;
+use App\Http\Controllers\Api\User\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,6 +60,10 @@ Route::middleware('jwt.verify')->group(function () {
         Route::post('/', [CartController::class, 'store']);
         Route::delete('/{id}', [CartController::class, 'delete']);
         Route::get('/qty', [CartController::class, 'getQty']);
+    });
+
+    Route::prefix('order')->group(function () {
+        Route::post('/', [OrderController::class, 'store']);
     });
 });
 

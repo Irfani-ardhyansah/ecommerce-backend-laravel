@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
 
-class CartRequest extends FormRequest
+class OrderRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,8 +26,12 @@ class CartRequest extends FormRequest
     public function rules()
     {
         return [
-            'product_id'    => ['required', 'exists:products,id'],
-            'qty'           => ['required', 'integer'],
+            'payment.method'    => ['required'],
+            'payment.total'     => ['required'],
+            'carts.*.qty'       => ['required'],
+            'carts.*.price'     => ['required'],
+            'carts.*.totalPrice'=> ['required'],
+            'carts.*.isDiscount'=> ['required'],
         ];
     }
 
@@ -37,6 +41,6 @@ class CartRequest extends FormRequest
             'success'   => false,
             'message'   => 'Validation errors',
             'data'      => $validator->errors()
-        ], 422));
+        ]));
     }
 }

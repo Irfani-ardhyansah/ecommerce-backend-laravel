@@ -3,16 +3,20 @@
 namespace App\Http\Controllers\Api\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\OrderRequest;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\OrderDetail;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use DB;
+use Carbon\Carbon;
 
 class OrderController extends Controller
 {
-    public function store(Request $request)
+    public function store(OrderRequest $request)
     {
         try {
             if (!JWTAuth::parseToken()->authenticate()) {
@@ -43,13 +47,49 @@ class OrderController extends Controller
         }
 
         try {
-            $data = $request->json()->all();
+            DB::beginTransaction();
+            $request        = $request->json()->all();
+            $user           = auth()->user();
+            $userId         = $user->id;
+            $userDetailId   = $user->detail->id;
+            $carbon         = Carbon::now();
+            $date           = str_replace('-', '', $carbon->format('Y-m-d'));
+            $time           = str_replace(':', '', $carbon->format('H:i:s'));
+            
+            $order = [
+                'user_id'           => $userId,
+                'user_detail_id'    => $userDetailId,
+                'invoice'           => $time.$date.strtotime($carbon),
+                'status'            => 'process',
+                'payment_total'     => $request['payment']['total'],
+                'payment_method'    => $request['payment']['method'],
+            ];
 
+            $order = Order::create($order);
+
+            $orerDetail = [];
+            foreach($request['carts'] as $row) {
+                $orderDetail[] = [
+                    'order_id'      => $order->id,
+                    'product_id'    => $row['id'],
+                    'qty'           => $row['qty'],
+                    'price'         => $row['price'],
+                    'total_price'   => $row['totalPrice'],
+                    'is_discount'   => $row['isDiscount']
+                ];
+            }
+
+            OrderDetail::insert($orderDetail);
+
+            $response = Order::with('details')->find($order->id);
+
+            DB::commit();
             return response()->json([
                 'status' => 200,
-                'data'   => $data
+                'data'   => $response
             ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json([
                 'status' => 500,
                 'data'   => $e->getMessage()

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 class CreateOrderDetailsTable extends Migration
 {
     /**
-     * Run the migrations.
+     * Run the migrations
      *
      * @return void
      */
