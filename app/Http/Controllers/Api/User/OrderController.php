@@ -61,7 +61,7 @@ class OrderController extends Controller
                 'user_detail_id'    => $userDetailId,
                 'invoice'           => $time.$date.strtotime($carbon),
                 'status'            => 'process',
-                'payment_total'     => $request['payment']['total'],
+                'payment_total'     => $request['payment']['total_price'],
                 'payment_method'    => $request['payment']['method'],
             ];
 
@@ -74,8 +74,8 @@ class OrderController extends Controller
                     'product_id'    => $row['id'],
                     'qty'           => $row['qty'],
                     'price'         => $row['price'],
-                    'total_price'   => $row['totalPrice'],
-                    'is_discount'   => $row['isDiscount']
+                    'total_price'   => $row['total_price'],
+                    'is_discount'   => $row['is_discount']
                 ];
             }
 
