@@ -27,11 +27,10 @@ class OrderRequest extends FormRequest
     {
         return [
             'payment.method'    => ['required'],
-            'payment.total'     => ['required'],
+            'payment.total_price'     => ['required'],
             'carts.*.qty'       => ['required'],
             'carts.*.price'     => ['required'],
-            'carts.*.totalPrice'=> ['required'],
-            'carts.*.isDiscount'=> ['required'],
+            'carts.*.total_price'=> ['required'],
         ];
     }
 

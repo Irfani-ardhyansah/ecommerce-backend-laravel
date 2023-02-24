@@ -7,6 +7,7 @@ use App\Http\Requests\OrderRequest;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderDetail;
+use App\Models\Cart;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -56,6 +57,16 @@ class OrderController extends Controller
             $date           = str_replace('-', '', $carbon->format('Y-m-d'));
             $time           = str_replace(':', '', $carbon->format('H:i:s'));
             
+
+
+            $carts      = $request['carts'];
+            $cartsId    = [];
+            foreach($carts as $row) {
+                array_push($cartsId, $row['id']);
+            }
+
+            Cart::whereIn('id', $cartsId)->delete();
+
             $order = [
                 'user_id'           => $userId,
                 'user_detail_id'    => $userDetailId,
@@ -75,7 +86,7 @@ class OrderController extends Controller
                     'qty'           => $row['qty'],
                     'price'         => $row['price'],
                     'total_price'   => $row['total_price'],
-                    'is_discount'   => $row['is_discount']
+                    'is_discount'   => isset($row['is_discount']) ? $row['is_discount'] : null
                 ];
             }
 
