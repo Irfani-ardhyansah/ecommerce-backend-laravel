@@ -17,6 +17,53 @@ use Carbon\Carbon;
 
 class OrderController extends Controller
 {
+    public function index()
+    {
+
+        try {
+            if (!JWTAuth::parseToken()->authenticate()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found',
+                    'data'    => null
+                ], 404);
+            }
+        } catch (TokenExpiredException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token expired',
+                'data'    => null
+            ], 400);
+        } catch (TokenInvalidException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token invalid',
+                'data'    => null
+            ], 400);
+        } catch (JWTException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absent',
+                'data'    => null
+            ], 400);
+        }
+
+        try {
+            $userId     = auth()->user()->id;
+            $response   = Order::where('user_id', $userId)->with('details')->get();
+
+            return response()->json([
+                'status' => 200,
+                'data'   => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'data'   => $e->getMessage()
+            ]);
+        }
+    }
+
     public function store(OrderRequest $request)
     {
         try {
