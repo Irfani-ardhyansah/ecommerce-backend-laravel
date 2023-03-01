@@ -17,7 +17,7 @@ use Carbon\Carbon;
 
 class OrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
 
         try {
@@ -50,7 +50,25 @@ class OrderController extends Controller
 
         try {
             $userId     = auth()->user()->id;
-            $response   = Order::where('user_id', $userId)->with('details')->get();
+            $response   = Order::where('user_id', $userId)->with('details.product');
+
+            if($request->search) {
+                
+            }
+
+            if($request->category_id) {
+
+            }
+
+            if($request->date) {
+                $response = $response->where('created_at', $request->date);
+            }
+
+            if($request->status) {
+                $response = $response->where('status', $request->status);
+            }
+
+            $response   = $response->get();
 
             return response()->json([
                 'status' => 200,
